@@ -1,2 +1,2 @@
 # dotfiles
-:computer: Personal dotfiles
+:computer: Personal dotfiles (in progress)
