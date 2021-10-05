@@ -42,6 +42,8 @@ Plug 'prettier/vim-prettier', {
       \ 'do': 'npm install',
       \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue', 'yaml', 'html']}
 
+Plug 'dbeniamine/cheat.sh-vim'
+
 call plug#end()
 filetype plugin indent on
 
