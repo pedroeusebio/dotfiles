@@ -141,7 +141,7 @@ let g:vimspector_enable_mappings = 'VISUAL_STUDIO'
 let g:vimspector_install_gadgets = ['debugpy', 'vscode-node-debug2', 'vscode-node']
 
 " CoC config
-let g:coc_global_extensions = ['coc-json', 'coc-git', 'coc-prettier', 'coc-tsserver']
+let g:coc_global_extensions = ['coc-json', 'coc-git', 'coc-prettier', 'coc-tsserver', 'coc-pyright']
 
 " Use tab for trigger completion with characters ahead and navigate.
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
