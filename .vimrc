@@ -90,7 +90,7 @@ set shiftwidth=2
 set laststatus=2
 
 " Allow copy and paste from system clipboard
-set clipboard=unnamed
+set clipboard=unnamedplus
 
 " Set internal encoding of vim
 set encoding=utf-8
@@ -232,5 +232,31 @@ endif
 
 nmap <leader>drc <Plug>VimspectorRunToCursor
 
-"FZF mapping
+" FZF mapping
 nnoremap <C-p> :call fzf#run({'source': 'git ls-files', 'sink': 'e', 'window': { 'width': 0.9, 'height': 0.6 } })<CR>
+
+" Useful remaps
+nnoremap Y y$
+
+" Keeping it centered
+nnoremap n nzzzv
+nnoremap N Nzzzv
+nnoremap J mzJ`z
+
+" Undo break points
+inoremap , ,<c-g>u
+inoremap . .<c-g>u
+inoremap ! !<c-g>u
+inoremap ? ?<c-g>u
+
+" Jumplist mutations
+nnoremap <expr> k (v:count > 5 ? "m'" . v:count : "") . 'k'
+nnoremap <expr> j (v:count > 5 ? "m'" . v:count : "") . 'j'
+
+" Moving text
+nnoremap <leader>j :m .+1<CR>==
+vnoremap J :m '>+1<CR>gv=gv
+vnoremap K :m '<-2<CR>gv=gv
+inoremap <C-j> <esc>:m .+1<CR>==
+inoremap <C-k> <esc>:m .-2<CR>==
+nnoremap <leader>k :m .-2<CR>==
