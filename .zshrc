@@ -102,6 +102,7 @@ export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg#colour5"
 # Example aliases
 alias zshconfig="vim ~/.zshrc"
 alias vimconfig="vim ~/.vimrc"
+alias tmuxconfig="vim ~/.tmux.conf"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 source ~/.aliases
 
