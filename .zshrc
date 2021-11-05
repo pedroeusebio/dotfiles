@@ -118,4 +118,4 @@ export NVM_DIR="$HOME/.nvm"
 
 
 export PYTHON_BUILD_ARIA2_OPTS="-x 10 -k 1M"
-
+export EDITOR="/usr/bin/nvim"
