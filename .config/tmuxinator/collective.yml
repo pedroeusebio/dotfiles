@@ -21,7 +21,8 @@ root: ~/Workspace/Collective
 # on_project_restart: command
 
 # Run on project exit ( detaching from tmux session )
-# on_project_exit: command
+on_project_exit: 
+  - cd ~/Workspace/Collective/collective-backend/ && make stop
 
 # Run on project stop
 # on_project_stop: command
@@ -46,10 +47,18 @@ root: ~/Workspace/Collective
 
 windows:
   - editor:
+      root: ~/Workspace/Collective/collective-backend
       layout: main-vertical
       # Synchronize all panes of this window, can be enabled before or after the pane commands run.
       # 'before' represents legacy functionality and will be deprecated in a future release, in favour of 'after'
       # synchronize: after
       panes:
         - vim
-  - backend: ~/Workspace/Collective/collective-backend/make run
+  - backend:
+      root: ~/Workspace/Collective/collective-backend
+      panes:
+        - make start && make run
+  - frontend:
+      root: ~/Workspace/Collective/collective-frontend
+      panes:
+        - npm start
