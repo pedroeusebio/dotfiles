@@ -1,0 +1,26 @@
+# navigation
+alias la='ls -lah --color'
+alias ls='ls --color'
+alias l='ls -l --color'
+alias vim='nvim'
+
+# git
+alias gp='git pull'
+alias gps='git push'
+alias gl='git log'
+alias gs='git status'
+alias gd='git diff'
+alias gds='git diff --staged'
+alias ga='git add'
+alias gc='git commit'
+alias gb='git branch --show-current'
+
+# node
+alias ni='node inspect'
+alias nij='node inspect $(npm bin)/jest --coverage --no-cache --runInBand'
+
+# docker-compose
+alias dcu='docker-compose up -d'
+alias dcd='docker-compose down'
+alias dcb='docker-compose build'
+
