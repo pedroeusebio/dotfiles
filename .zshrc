@@ -110,6 +110,7 @@ source ~/.aliases
 # uninstall by removing these lines
 [[ -f ~/.config/tabtab/__tabtab.zsh ]] && . ~/.config/tabtab/__tabtab.zsh || true
 export PATH="/usr/local/opt/python@3.8/bin:$PATH"
+export PATH="${HOME}/.local/bin:$PATH"
 stty -ixon
 
 export NVM_DIR="$HOME/.nvm"
