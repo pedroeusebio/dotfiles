@@ -58,7 +58,7 @@ set scrolloff=8
 
 set signcolumn=yes
 set colorcolumn=100
-autocmd FileType python set colorcolumn=80
+autocmd FileType python set colorcolumn=120
 
 " Numbers
 set nu
@@ -90,7 +90,7 @@ set shiftwidth=2
 set laststatus=2
 
 " Allow copy and paste from system clipboard
-set clipboard=unnamedplus
+set clipboard=unnamed
 
 " Set internal encoding of vim
 set encoding=utf-8
@@ -263,3 +263,12 @@ nnoremap <leader>k :m .-2<CR>==
 
 " Map Ctrl-Backspace to delete the previous word in insert mode.
 noremap! <C-h> <C-w>
+
+" WSL yank support
+let s:clip = '/mnt/c/Windows/System32/clip.exe'  " change this path according to your mount point
+if executable(s:clip)
+    augroup WSLYank
+        autocmd!
+        autocmd TextYankPost * if v:event.operator ==# 'y' | call system(s:clip, @0) | endif
+    augroup END
+endif
