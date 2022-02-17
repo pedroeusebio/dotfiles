@@ -1,7 +1,7 @@
 # /home/pedro/.config/tmuxinator/collective.yml
 
 name: collective
-root: ~/Workspace/Collective
+root: ~/workspace
 
 # Optional tmux socket
 # socket_name: foo
@@ -22,7 +22,7 @@ root: ~/Workspace/Collective
 
 # Run on project exit ( detaching from tmux session )
 on_project_exit: 
-  - cd ~/Workspace/Collective/collective-backend/ && make stop
+  - cd ~/workspace/collective-backend/ && make stop
 
 # Run on project stop
 # on_project_stop: command
@@ -47,7 +47,7 @@ on_project_exit:
 
 windows:
   - editor:
-      root: ~/Workspace/Collective/collective-backend
+      root: ~/workspace/collective-backend
       layout: main-vertical
       # Synchronize all panes of this window, can be enabled before or after the pane commands run.
       # 'before' represents legacy functionality and will be deprecated in a future release, in favour of 'after'
@@ -55,10 +55,10 @@ windows:
       panes:
         - vim
   - backend:
-      root: ~/Workspace/Collective/collective-backend
+      root: ~/workspace/collective-backend
       panes:
         - make start && make run
   - frontend:
-      root: ~/Workspace/Collective/collective-frontend
+      root: ~/workspace/collective-frontend
       panes:
         - npm start
