@@ -1,5 +1,5 @@
-set nocompatible
 filetype off
+set nocompatible
 
 " Keep Plug commands between plug#begin() and plug#end()
 let mapleader=" "
@@ -15,7 +15,9 @@ Plug 'maxmellon/vim-jsx-pretty'   " JS and JSX syntax
 Plug 'jparise/vim-graphql'        " GraphQL syntax
 Plug 'sheerun/vim-polyglot'
 
-Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
+"Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
+Plug 'davidhalter/jedi-vim'
+Plug 'ttibsi/pre-commit.nvim'     " Adding pre-commit commands
 
 Plug 'airblade/vim-gitgutter'     " Show git diff of lines edited
 Plug 'tpope/vim-fugitive'         " :Gblame
@@ -41,6 +43,7 @@ Plug 'wakatime/vim-wakatime'     " Wakatime
 Plug 'prettier/vim-prettier', { 
       \ 'do': 'npm install',
       \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue', 'yaml', 'html']}
+Plug 'w0rp/ale'                  " Async lint Engine
 
 Plug 'dbeniamine/cheat.sh-vim'
 
@@ -164,6 +167,15 @@ else
   inoremap <silent><expr> <c-@> coc#refresh()
 endif
 
+" ALE config
+let g:ale_fixers = {
+ \ 'javascript': ['eslint']
+ \ }
+ 
+let g:ale_sign_error = '❌'
+let g:ale_sign_warning = '⚠️'
+
+let g:ale_fix_on_save = 1
 
 " +++ Shortcuts +++
 
