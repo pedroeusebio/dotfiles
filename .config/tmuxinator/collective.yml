@@ -46,7 +46,7 @@ on_project_exit:
 # attach: false
 
 windows:
-  - editor:
+  - editor-be:
       root: ~/workspace/collective-backend
       layout: main-vertical
       # Synchronize all panes of this window, can be enabled before or after the pane commands run.
@@ -57,8 +57,12 @@ windows:
   - backend:
       root: ~/workspace/collective-backend
       panes:
-        - make start && make run
+        - make start && pipenv shell
   - frontend:
       root: ~/workspace/collective-frontend
       panes:
         - npm start
+  - editor-fe:
+      root: ~/workspace/collective-frontend
+      panes:
+        - vim
