@@ -245,7 +245,11 @@ endif
 nmap <leader>drc <Plug>VimspectorRunToCursor
 
 " FZF mapping
-nnoremap <C-p> :call fzf#run({'source': 'git ls-files', 'sink': 'e', 'window': { 'width': 0.9, 'height': 0.6 } })<CR>
+nnoremap <C-p> :call fzf#run({
+    \'source': 'find . -type f ! -path "./.git/*" ! -path "./.mypy_cache/*" ! -path "./htmlcov/*" ! -path "./.pytest_cache/*"',
+    \'sink': "e",
+    \'window': { 'width': 0.9, 'height': 0.6 }, 'color': "always" }
+    \)<CR>
 
 " Useful remaps
 nnoremap Y y$

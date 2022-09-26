@@ -23,6 +23,7 @@ root: ~/workspace
 # Run on project exit ( detaching from tmux session )
 on_project_exit: 
   - cd ~/workspace/collective-backend/ && make stop
+  - cd ~/workspace/collective-frotend/ && docker-compose down
 
 # Run on project stop
 # on_project_stop: command
@@ -49,20 +50,17 @@ windows:
   - editor-be:
       root: ~/workspace/collective-backend
       layout: main-vertical
-      # Synchronize all panes of this window, can be enabled before or after the pane commands run.
-      # 'before' represents legacy functionality and will be deprecated in a future release, in favour of 'after'
-      # synchronize: after
       panes:
         - vim
   - backend:
       root: ~/workspace/collective-backend
       panes:
-        - make start && pipenv shell
-  - frontend:
-      root: ~/workspace/collective-frontend
-      panes:
-        - npm start
+        - make start
   - editor-fe:
       root: ~/workspace/collective-frontend
       panes:
         - vim
+  - frontend:
+      root: ~/workspace/collective-frontend
+      panes:
+        - docker-compose up -d
