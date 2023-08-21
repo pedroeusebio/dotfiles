@@ -5,7 +5,7 @@ set nocompatible
 let mapleader=" "
 let maplocalleader=" "
 
-call plug#begin()
+call plug#begin('~/.local/share/nvim/site/plugged')
 
 Plug 'lambdalisue/fern.vim'
 
@@ -46,6 +46,9 @@ Plug 'prettier/vim-prettier', {
 Plug 'w0rp/ale'                  " Async lint Engine
 
 Plug 'dbeniamine/cheat.sh-vim'
+
+Plug 'nvim-lua/plenary.nvim'
+Plug 'andythigpen/nvim-coverage'
 
 call plug#end()
 filetype plugin indent on
@@ -288,3 +291,5 @@ if executable(s:clip)
         autocmd TextYankPost * if v:event.operator ==# 'y' | call system(s:clip, @0) | endif
     augroup END
 endif
+
+:lua require("coverage").setup()

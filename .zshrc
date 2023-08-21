@@ -108,15 +108,27 @@ source ~/.aliases
 
 # tabtab source for packages
 # uninstall by removing these lines
-[[ -f ~/.config/tabtab/__tabtab.zsh ]] && . ~/.config/tabtab/__tabtab.zsh || true
-export PATH="/usr/local/opt/python@3.8/bin:$PATH"
-export PATH="${HOME}/.local/bin:$PATH"
-stty -ixon
+#[[ -f ~/.config/tabtab/__tabtab.zsh ]] && . ~/.config/tabtab/__tabtab.zsh || true
+#export PATH="/usr/local/opt/python@3.8/bin:$PATH"
+#export PATH="${HOME}/.local/bin:$PATH"
+#stty -ixon
 
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+[ -s "/home/linuxbrew/.linuxbrew/opt/nvm/nvm.sh" ] && \. "/home/linuxbrew/.linuxbrew/opt/nvm/nvm.sh"  # This loads nvm
+[ -s "/home/linuxbrew/.linuxbrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/home/linuxbrew/.linuxbrew/opt/nvm/etc/bash_completion.d/nvm"
 
+
+export EDITOR="nvim"
 
 export PYTHON_BUILD_ARIA2_OPTS="-x 10 -k 1M"
-export EDITOR="/usr/bin/nvim"
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"
+eval "$(pyenv init -)"
+
+export LDFLAGS="-Wl,-rpath,$(brew --prefix openssl)/lib"
+export CPPFLAGS="-I$(brew --prefix openssl)/include"
+export CONFIGURE_OPTS="--with-openssl=$(brew --prefix openssl)"
+export PATH="/home/linuxbrew/.linuxbrew/opt/libpq/bin:$PATH"
+
+eval $(thefuck --alias)
