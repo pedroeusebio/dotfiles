@@ -41,8 +41,8 @@ Plug 'gruvbox-community/gruvbox'
 Plug 'wakatime/vim-wakatime'     " Wakatime
 
 Plug 'prettier/vim-prettier', { 
-      \ 'do': 'npm install',
-      \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue', 'yaml', 'html']}
+      \ 'do': 'yarn install --frozen-lockfile --production',
+      \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue', 'yaml', 'html', 'typescriptreact', 'javascriptreact']}
 Plug 'w0rp/ale'                  " Async lint Engine
 
 Plug 'dbeniamine/cheat.sh-vim'
@@ -204,6 +204,8 @@ nnoremap <silent><leader><TAB> :b#<CR>
 nnoremap <silent><leader>t :split term://zsh<CR>
 " Search in the project
 nnoremap <silent><C-a> :Ag<CR>
+
+nnoremap <silent><Leader>py <Plug>(Prettier)
 
 " Navigate between the splits
 nnoremap <C-J> <C-W><C-J>

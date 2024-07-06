@@ -119,3 +119,9 @@ fi
 if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
     tmux attach -t default || tmux new -s default
 fi
+export ANSIBLE_STDOUT_CALLBACK=debug
+export ANSIBLE_CONFIG=/etc/ansible/ansible.cfg
+. "$HOME/.cargo/env"
+export ANSIBLE_STDOUT_CALLBACK=default
+export ANSIBLE_DISPLAY_SKIPPED_HOSTS=False
+export PATH=/usr/bin:$PATH
