@@ -131,4 +131,10 @@ export CPPFLAGS="-I$(brew --prefix openssl)/include"
 export CONFIGURE_OPTS="--with-openssl=$(brew --prefix openssl)"
 export PATH="/home/linuxbrew/.linuxbrew/opt/libpq/bin:$PATH"
 
+envchange(){
+    context_name=$(kubectl config get-contexts | awk '{print $2}' | grep $1)
+    kubectl config use-context $context_name
+    gcloud config configurations activate $1
+}
+
 eval $(thefuck --alias)

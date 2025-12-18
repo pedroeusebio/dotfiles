@@ -125,3 +125,10 @@ export ANSIBLE_CONFIG=/etc/ansible/ansible.cfg
 export ANSIBLE_STDOUT_CALLBACK=default
 export ANSIBLE_DISPLAY_SKIPPED_HOSTS=False
 export PATH=/usr/bin:$PATH
+
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+envchange(){
+    context_name=$(kubectl config get-contexts | awk '{print $2}' | grep $1)
+    kubectl config use-context $context_name
+    gcloud config configurations activate $1
+}
