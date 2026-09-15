@@ -74,6 +74,13 @@ plugins=(
   pyenv
 )
 
+# Deduplica $PATH/$fpath automaticamente. Sem isso, .zprofile + plugin pyenv +
+# .zshrc empilhavam as mesmas entradas 3x e o compinit varria os dirs repetidos.
+typeset -U path PATH fpath FPATH
+
+# Pula o compaudit (checagem de permissao dos dirs de completion) no startup.
+ZSH_DISABLE_COMPFIX=true
+
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
@@ -113,6 +120,11 @@ source ~/.aliases
 #export PATH="${HOME}/.local/bin:$PATH"
 #stty -ixon
 
+# .zprofile ja rodou isso em shell de login; aqui so para shell nao-login.
+if [[ -z "$HOMEBREW_PREFIX" ]] && [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
 export NVM_DIR="$HOME/.nvm"
 [ -s "/home/linuxbrew/.linuxbrew/opt/nvm/nvm.sh" ] && \. "/home/linuxbrew/.linuxbrew/opt/nvm/nvm.sh"  # This loads nvm
 [ -s "/home/linuxbrew/.linuxbrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/home/linuxbrew/.linuxbrew/opt/nvm/etc/bash_completion.d/nvm"
@@ -122,14 +134,23 @@ export EDITOR="nvim"
 
 export PYTHON_BUILD_ARIA2_OPTS="-x 10 -k 1M"
 export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
+export PATH="$PYENV_ROOT/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+# pyenv init nao vai aqui: o .zprofile roda `pyenv init --path` e o plugin pyenv
+# do oh-my-zsh roda `--path` + `- --no-rehash`. Repetir custava ~70ms por shell.
 
-export LDFLAGS="-Wl,-rpath,$(brew --prefix openssl)/lib"
-export CPPFLAGS="-I$(brew --prefix openssl)/include"
-export CONFIGURE_OPTS="--with-openssl=$(brew --prefix openssl)"
+# Flags usadas so por `pyenv install` ao compilar Python.
+# Uma chamada ao brew em vez de tres: eram ~128ms por shell.
+if command -v brew >/dev/null 2>&1; then
+  _openssl_prefix="$(brew --prefix openssl)"
+  export LDFLAGS="-Wl,-rpath,${_openssl_prefix}/lib"
+  export CPPFLAGS="-I${_openssl_prefix}/include"
+  export CONFIGURE_OPTS="--with-openssl=${_openssl_prefix}"
+  unset _openssl_prefix
+fi
+
 export PATH="/home/linuxbrew/.linuxbrew/opt/libpq/bin:$PATH"
+export PATH="$HOME/.yarn/bin:$PATH"
 
 envchange(){
     context_name=$(kubectl config get-contexts | awk '{print $2}' | grep $1)
@@ -137,4 +158,9 @@ envchange(){
     gcloud config configurations activate $1
 }
 
-eval $(thefuck --alias)
+# thefuck custa ~160ms de Python no startup. Carrega no primeiro uso.
+fuck() {
+  unfunction fuck
+  eval "$(thefuck --alias)"
+  fuck "$@"
+}
