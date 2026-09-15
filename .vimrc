@@ -20,14 +20,11 @@ call plug#begin('~/.local/share/nvim/site/plugged')
 
 Plug 'lambdalisue/fern.vim'
 
-Plug 'pangloss/vim-javascript'    " JavaScript support
-Plug 'leafgarland/typescript-vim' " TypeScript syntax
-Plug 'maxmellon/vim-jsx-pretty'   " JS and JSX syntax
-Plug 'jparise/vim-graphql'        " GraphQL syntax
+" vim-polyglot ja embute vim-javascript, typescript-vim, vim-jsx-pretty e vim-graphql
 Plug 'sheerun/vim-polyglot'
 
 "Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
-Plug 'davidhalter/jedi-vim'
+" jedi-vim removido: conflitava com coc-pyright (sequestrava K/omnifunc em .py)
 Plug 'ttibsi/pre-commit.nvim'     " Adding pre-commit commands
 
 Plug 'airblade/vim-gitgutter'     " Show git diff of lines edited
@@ -106,6 +103,11 @@ set shiftwidth=2
 " Always show the status line
 set laststatus=2
 
+" Recomendado pelo coc.nvim: buffers em background, diagnostics/gitgutter rapidos
+set hidden
+set updatetime=100
+set shortmess+=c
+
 " Allow copy and paste from system clipboard
 set clipboard=unnamed
 
@@ -118,6 +120,9 @@ set splitbelow splitright
 
 " Removes pipes | that act as separators  on splits
 set fillchars+=vert:\ 
+
+
+let g:python3_host_prog = '/usr/bin/python3'
 
 colorscheme gruvbox
 
@@ -182,6 +187,11 @@ else
 endif
 
 " ALE config
+" O coc (pyright/tsserver) ja faz diagnostics; ALE fica so como fixer do eslint
+let g:ale_disable_lsp = 1
+let g:ale_linters_explicit = 1
+let g:ale_linters = {}
+
 let g:ale_fixers = {
  \ 'javascript': ['eslint']
  \ }
@@ -213,8 +223,10 @@ nnoremap <silent><leader>gp :Git push<CR>
 nnoremap <silent><leader><TAB> :b#<CR>
 " Show a terminal
 nnoremap <silent><leader>t :split term://zsh<CR>
-" Search in the project
-nnoremap <silent><C-a> :Ag<CR>
+" Search in the project (grep incremental: o rg reroda a cada tecla)
+nnoremap <silent><C-a> :LiveGrep<CR>
+" Busca a palavra sob o cursor
+nnoremap <silent><leader>* :execute 'LiveGrep ' . expand('<cword>')<CR>
 
 nnoremap <silent><Leader>py <Plug>(Prettier)
 
@@ -260,12 +272,44 @@ endif
 
 nmap <leader>drc <Plug>VimspectorRunToCursor
 
-" FZF mapping
-nnoremap <C-p> :call fzf#run({
-    \'source': 'find . -type f ! -path "./.git/*" ! -path "./.mypy_cache/*" ! -path "./htmlcov/*" ! -path "./.pytest_cache/*"',
-    \'sink': "e",
-    \'window': { 'width': 0.9, 'height': 0.6 }, 'color': "always" }
-    \)<CR>
+" +++ Busca de arquivos e de conteudo (fzf) +++
+
+" Listagem de arquivos: respeita .gitignore automaticamente.
+" Fallback para find caso rg/fd nao estejam instalados na maquina.
+if executable('rg')
+  let $FZF_DEFAULT_COMMAND = "rg --files --hidden --follow --glob '!.git/'"
+elseif executable('fd')
+  let $FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git"
+else
+  let $FZF_DEFAULT_COMMAND = 'find . -type f ! -path "./.git/*" ! -path "./node_modules/*" ! -path "./htmlcov/*" ! -path "./.mypy_cache/*" ! -path "./.pytest_cache/*"'
+endif
+
+let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+
+nnoremap <silent><C-p> :Files<CR>
+
+" Escape hatch: lista TUDO, inclusive o que o .gitignore esconde.
+" Ainda corta as pastas pesadas, senao volta a ser 130k arquivos.
+command! -bang -nargs=? -complete=dir FilesAll
+      \ call fzf#vim#files(<q-args>, extend({'source':
+      \   "rg --files --hidden --follow --no-ignore"
+      \   . " --glob '!.git/' --glob '!node_modules/' --glob '!.claude/'"
+      \   . " --glob '!**/__pycache__/' --glob '!htmlcov/' --glob '!coverage/'"
+      \   . " --glob '!.venv/' --glob '!.mypy_cache/' --glob '!.pytest_cache/'"},
+      \   fzf#vim#with_preview()), <bang>0)
+
+nnoremap <silent><leader>P :FilesAll<CR>
+
+" Grep incremental: a query vai para o rg, nao para o filtro do fzf.
+" Evita carregar o repositorio inteiro (~1.8M linhas) na memoria.
+if executable('rg')
+  command! -nargs=* -bang LiveGrep
+        \ call fzf#vim#grep2(
+        \   "rg --column --line-number --no-heading --color=always --smart-case -- ",
+        \   <q-args>, fzf#vim#with_preview(), <bang>0)
+else
+  command! -nargs=* -bang LiveGrep call fzf#vim#ag(<q-args>, fzf#vim#with_preview(), <bang>0)
+endif
 
 " Useful remaps
 nnoremap Y y$
