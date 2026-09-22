@@ -20,8 +20,10 @@ call plug#begin('~/.local/share/nvim/site/plugged')
 
 Plug 'lambdalisue/fern.vim'
 
-" vim-polyglot ja embute vim-javascript, typescript-vim, vim-jsx-pretty e vim-graphql
-Plug 'sheerun/vim-polyglot'
+" Treesitter: highlight/indent/textobjects. Substitui o vim-polyglot (sem
+" manutencao desde 2023 e historicamente conflitante com indent e LSP).
+Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'master', 'do': ':TSUpdate' }
+Plug 'nvim-treesitter/nvim-treesitter-textobjects', { 'branch': 'master' }
 
 "Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
 " jedi-vim removido: conflitava com coc-pyright (sequestrava K/omnifunc em .py)
@@ -41,6 +43,8 @@ Plug 'szw/vim-maximizer'          " Maximize plugin
 Plug 'tpope/vim-sleuth'           " auto-detect tab/space styling of workspace
 
 Plug 'preservim/nerdcommenter'
+Plug 'tpope/vim-surround'         " cs"' ysiw( dst
+Plug 'tpope/vim-repeat'           " faz o . repetir surround/gitgutter
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } " Search in the project
 Plug 'junegunn/fzf.vim'
@@ -55,6 +59,8 @@ Plug 'w0rp/ale'                  " Async lint Engine
 
 Plug 'dbeniamine/cheat.sh-vim'
 
+Plug 'vim-test/vim-test'          " roda pytest do buffer atual no container
+
 Plug 'nvim-lua/plenary.nvim'
 Plug 'andythigpen/nvim-coverage'
 
@@ -64,6 +70,11 @@ filetype plugin indent on
 
 syntax enable
 set background=dark
+
+" Truecolor: sem isso o gruvbox roda em 256 cores degradadas
+if has('termguicolors')
+  set termguicolors
+endif
 
 " Enable mouse mode in all modes
 set mouse=a
@@ -87,6 +98,13 @@ set nobackup
 set nowritebackup
 set noswapfile
 
+" Undo persistente entre sessoes (o dir e criado sozinho pelo nvim)
+set undofile
+set undodir=~/.local/share/nvim/undodir
+
+" Evita o texto pular quando abre/fecha split (diagnostics, Fern, terminal)
+set splitkeep=screen
+
 set ignorecase " Ignore case when searching
 set smartcase  " When searching try to be smart about cases
 set nohlsearch " Don't highlight search term
@@ -109,7 +127,9 @@ set updatetime=100
 set shortmess+=c
 
 " Allow copy and paste from system clipboard
-set clipboard=unnamed
+" unnamedplus = registrador +, que e o Ctrl-C/Ctrl-V do X11/Wayland.
+" 'unnamed' (registrador *) e a selecao do mouse, nao a area de transferencia.
+set clipboard=unnamedplus
 
 " Set internal encoding of vim
 set encoding=utf-8
@@ -123,6 +143,11 @@ set fillchars+=vert:\
 
 
 let g:python3_host_prog = '/usr/bin/python3'
+
+" Config especifica da maquina/projeto (nao versionada)
+if filereadable(expand('~/.vimrc.local'))
+  execute 'source' expand('~/.vimrc.local')
+endif
 
 colorscheme gruvbox
 
@@ -222,7 +247,11 @@ nnoremap <silent><leader>gp :Git push<CR>
 " Swap between last edited buffer
 nnoremap <silent><leader><TAB> :b#<CR>
 " Show a terminal
-nnoremap <silent><leader>t :split term://zsh<CR>
+function! OpenTerminal() abort
+  split term://zsh
+  call TermEscapeMap()
+endfunction
+nnoremap <silent><leader>t :call OpenTerminal()<CR>
 " Search in the project (grep incremental: o rg reroda a cada tecla)
 nnoremap <silent><C-a> :LiveGrep<CR>
 " Busca a palavra sob o cursor
@@ -340,6 +369,55 @@ nnoremap <leader>k :m .-2<CR>==
 " Map Ctrl-Backspace to delete the previous word in insert mode.
 noremap! <C-h> <C-w>
 
+" +++ vim-test: roda a suite dentro de um container docker +++
+"
+" Config especifica da maquina fica em ~/.vimrc.local (fora deste repo):
+"   let g:test_container     = '<nome do container>'
+"   let g:test_container_cwd = '<path do mount do repo no container>'
+"   let g:test_container_env = ['VAR=valor', ...]   " opcional
+" Sem isso, cai na strategy padrao do vim-test (roda no host).
+
+let g:test#python#runner = 'pytest'
+let g:test#python#pytest#executable = 'python -m pytest'
+
+" Roda o comando do vim-test dentro do container, traduzindo o path do host
+" para o path do mount do repo no container.
+function! DockerTestStrategy(cmd) abort
+  let l:cmd = substitute(a:cmd, '\V' . escape(getcwd(), '\') . '/', '', 'g')
+  let l:env = []
+  for l:e in get(g:, 'test_container_env', [])
+    call extend(l:env, ['-e', l:e])
+  endfor
+  botright new
+  call jobstart(
+        \ ['docker', 'exec'] + l:env + [g:test_container,
+        \  'bash', '-lc', 'cd ' . get(g:, 'test_container_cwd', '/app') . ' && ' . l:cmd],
+        \ {'term': v:true})
+  call TermEscapeMap()
+  startinsert
+endfunction
+
+if !empty(get(g:, 'test_container', ''))
+  let g:test#custom_strategies = {'docker': function('DockerTestStrategy')}
+  let g:test#strategy = 'docker'
+endif
+
+" Prefixo <leader>r (run), e nao <leader>t: <leader>t ja abre o terminal e
+" um prefixo <leader>t faria o terminal esperar o timeoutlen a cada uso.
+" rn = teste sob o cursor | rf = arquivo | rs = suite | rl = ultimo | rv = visita
+nnoremap <silent><leader>rn :TestNearest<CR>
+nnoremap <silent><leader>rf :TestFile<CR>
+nnoremap <silent><leader>rs :TestSuite<CR>
+nnoremap <silent><leader>rl :TestLast<CR>
+nnoremap <silent><leader>rv :TestVisit<CR>
+
+" Sai do modo terminal com Esc-Esc. TEM que ser <buffer>: o modal do fzf e um
+" buffer de terminal e depende do Esc chegar cru no processo. Um tnoremap
+" global transforma <Esc> em prefixo de mapping e quebra o fzf.
+function! TermEscapeMap() abort
+  tnoremap <buffer> <Esc><Esc> <C-\><C-n>
+endfunction
+
 " WSL yank support
 let s:clip = '/mnt/c/Windows/System32/clip.exe'  " change this path according to your mount point
 if executable(s:clip)
@@ -349,4 +427,39 @@ if executable(s:clip)
     augroup END
 endif
 
-:lua require("coverage").setup()
+lua << EOF
+require("coverage").setup()
+
+require('nvim-treesitter.configs').setup({
+  ensure_installed = {
+    'python', 'javascript', 'typescript', 'tsx', 'json', 'yaml', 'toml',
+    'html', 'css', 'markdown', 'markdown_inline', 'bash', 'sql', 'lua',
+    'dockerfile', 'vim', 'vimdoc',
+  },
+  auto_install = false,
+  highlight = { enable = true },
+  -- indent do treesitter em python ainda e instavel (continuation lines,
+  -- argumentos quebrados). vim-sleuth + indent nativo cuidam do .py.
+  indent = { enable = true, disable = { 'python' } },
+  textobjects = {
+    select = {
+      enable = true,
+      lookahead = true,
+      keymaps = {
+        ['af'] = '@function.outer',
+        ['if'] = '@function.inner',
+        ['ac'] = '@class.outer',
+        ['ic'] = '@class.inner',
+        ['aa'] = '@parameter.outer',
+        ['ia'] = '@parameter.inner',
+      },
+    },
+    move = {
+      enable = true,
+      set_jumps = true,
+      goto_next_start = { [']m'] = '@function.outer', [']]'] = '@class.outer' },
+      goto_previous_start = { ['[m'] = '@function.outer', ['[['] = '@class.outer' },
+    },
+  },
+})
+EOF
