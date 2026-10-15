@@ -25,6 +25,11 @@ Plug 'lambdalisue/fern.vim'
 Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'master', 'do': ':TSUpdate' }
 Plug 'nvim-treesitter/nvim-treesitter-textobjects', { 'branch': 'master' }
 
+" Indent de python PEP8/black (hanging indent de 4, fecha-parenteses na coluna
+" certa). O indent nativo do nvim usa 8 apos abrir parenteses. Isto vinha
+" embutido no vim-polyglot; standalone agora que o polyglot saiu.
+Plug 'Vimjas/vim-python-pep8-indent'
+
 "Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
 " jedi-vim removido: conflitava com coc-pyright (sequestrava K/omnifunc em .py)
 Plug 'ttibsi/pre-commit.nvim'     " Adding pre-commit commands
