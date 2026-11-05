@@ -164,3 +164,20 @@ fuck() {
   eval "$(thefuck --alias)"
   fuck "$@"
 }
+
+# Shells criados antes do Xwayland subir (ex.: 1ª janela do tmux) ficam sem
+# XAUTHORITY, e o clipboard do nvim (xclip) falha em silêncio. A cada prompt,
+# recarrega as variáveis de display do ambiente da sessão tmux.
+if [[ -n $TMUX ]]; then
+  _tmux_refresh_display_env() {
+    local line
+    for line in ${(f)"$(tmux show-environment 2>/dev/null)"}; do
+      case $line in
+        (XAUTHORITY=*|DISPLAY=*|WAYLAND_DISPLAY=*) export "$line" ;;
+        (-XAUTHORITY|-DISPLAY|-WAYLAND_DISPLAY) unset "${line#-}" ;;
+      esac
+    done
+  }
+  autoload -Uz add-zsh-hook
+  add-zsh-hook precmd _tmux_refresh_display_env
+fi
