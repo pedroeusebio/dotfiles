@@ -17,6 +17,8 @@ state="$1"
 
 if [ "$state" = "clear" ]; then
     tmux set-option -w -u -t "$TMUX_PANE" @claude_state 2>/dev/null
+    # Turn start time: desktop-notify.sh skips "done" for short turns.
+    tmux set-option -w -t "$TMUX_PANE" @claude_started "$(date +%s)" 2>/dev/null
     exit 0
 fi
 
